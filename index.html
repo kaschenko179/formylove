@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вітаю тебе сонце з всесвітнім днем жінок</title>
+    <style>
+        /* Base styles */
+        :root {
+            --primary-color: #ff3366;
+            --background-color: #fffafb;
+            --text-color: #333;
+            --button-text-color: #fff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        .heart-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .heart {
+            position: absolute;
+            color: rgba(255, 182, 193, 0.7);
+            font-size: 20px;
+            animation: float 10s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        section {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: var(--button-text-color);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: #e62e5c;
+            transform: scale(1.05);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* --- Section 2: Reasons --- */
+        #reasons-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .reason-item {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 2px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .reason-item:hover {
+            border-color: rgba(255, 182, 193, 0.5);
+            transform: translateX(5px);
+        }
+
+        .reason-item.revealed {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .reason-item .reason-title {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reason-item .reason-title::before {
+            content: "♥";
+            font-size: 1.3rem;
+        }
+
+        .reason-item .reason-text {
+            display: none;
+            margin-top: 10px;
+            color: var(--text-color);
+            font-style: italic;
+        }
+
+        .reason-item.revealed .reason-text {
+            display: block;
+        }/* --- Section 3: Matching Game (Оновлено) --- */
+        #moves-counter {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 колонки для кращого вигляду на телефоні */
+            grid-gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .card {
+            background-color: var(--primary-color);
+            height: 90px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            transition: transform 0.3s, background-color 0.3s;
+            position: relative;
+            user-select: none; /* Забороняємо виділення тексту при швидкому кліку */
+            -webkit-user-select: none;
+        }
+
+        .card.flipped, .card.matched {
+            background-color: white;
+            color: var(--primary-color);
+            cursor: default;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Нова, надійна логіка відображення карток */
+        .card .card-back {
+            position: absolute;
+            color: white;
+            opacity: 0.5;
+            font-size: 2rem;
+        }
+        
+        .card .card-front {
+            display: none; /* За замовчуванням сховано */
+        }
+
+        .card.flipped .card-front, .card.matched .card-front {
+            display: block; /* Показуємо емодзі, коли картка перевернута */
+        }
+
+        .card.flipped .card-back, .card.matched .card-back {
+            display: none; /* Ховаємо знак питання */
+        }
+
+        #game-message {
+            display: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* --- Section 4: Memories --- */
+        .memories-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 15px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .memory-item {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .memory-item img,
+        .memory-item video {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+            background-color: #eee; /* Заглушка, якщо фото не знайдено */
+        }
+
+        .memory-caption {
+            padding: 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .text-art {
+            font-family: monospace;
+            white-space: pre;
+            color: var(--primary-color);
+            margin-top: 30px;
+            font-size: 1.2rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="heart-bg" id="heart-bg"></div>
+
+    <div class="container">
+        <section id="welcome" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <h1>Привіт, коханятко моє</h1>
+            <p>Я дуже старався та зробив це спеціально для тебе!</p>
+            <p>Пройди міні-гру, щоб відкрити всю сторінку</p>
+            <button class="btn" onclick="nextSection('welcome', 'reasons')">Почати гру →</button>
+        </section>
+
+        <section id="reasons">
+            <h1>Чому я тебе кохаю</h1>
+            <p>Натисни на кожне сердечко, щоб розкрити причину</p>
+            <div id="reasons-list">
+                <div class="reason-item" onclick="revealReason(this)">
+                    <div class="reason-title">Твоя відданість</div>
+                    <div class="reason-text">Ти завжди підтримуєш мене і віриш у нас.</div></div>
+                <div class="reason-item" onclick="revealReason(this)">
+                    <div class="reason-title">Твоя ніжність</div>
+                    <div class="reason-text">Твої дотики та слова зігрівають мою душу.</div>
+                </div>
+                <div class="reason-item" onclick="revealReason(this)">
+                    <div class="reason-title">Твій гумор</div>
+                    <div class="reason-text">Ти вмієш розсмішити мене, підняти настрій , навіть коли мені сумно.</div>
+                </div>
+                <div class="reason-item" onclick="revealReason(this)">
+                    <div class="reason-title">Твоя краса</div>
+                    <div class="reason-text">Ти найпрекрасніша , найкрасивіша дівчина у світі, як ззовні, так і зсередини.</div>
+                </div>
+                <div class="reason-item" onclick="revealReason(this)">
+                    <div class="reason-title">Твоя турбота</div>
+                    <div class="reason-text">Ти турбуєшся про мене як ніхто інший і я дуже сильно це ціную!.</div>
+                </div>
+                <div class="reason-item" onclick="revealReason(this)">
+                    <div class="reason-title">Сумісне майбутнє</div>
+                    <div class="reason-text">Я мрію прожити кожну мить свого життя з тобою , та дуже сильно надіюсь на те що наше майбутнє буде саме НАШИМ.</div>
+                </div>
+            </div>
+            <button class="btn" id="reasons-next" onclick="nextSection('reasons', 'game')" style="display: none;">Далі →</button>
+        </section>
+
+        <section id="game">
+            <h1>Давай зіграємо</h1>
+            <p>Знайди всі пари!</p>
+            <div id="moves-counter">Ходи: 0</div>
+            
+            <div class="game-grid" id="game-grid">
+                </div>
+            
+            <div id="game-message">Молодець! 🎉 Всі пари знайдено!</div>
+            <button class="btn" id="game-next" onclick="nextSection('game', 'memories')" style="display: none;">Далі →</button>
+        </section>
+
+        <section id="memories">
+            <h1>Трошки про тебе</h1>
+            <p>Слова які я тримаю в головві постійно 💖</p>
+            <div class="memories-grid">
+                <div class="memory-item">
+                    <img src="1.jpg" alt="Memory 1">
+                    <div class="memory-caption">Ти найкраща у всьому!</div>
+                </div>
+                <div class="memory-item">
+                    <img src="4.jpg" alt="Memory 2">
+                    <div class="memory-caption">Найкрасивіша</div>
+                </div>
+                <div class="memory-item">
+                    <img src="5.jpg" alt="Memory 3">
+                    <div class="memory-caption">Добра тендітна та мила</div>
+                </div>
+                <div class="memory-item">
+                    <video src="2.MOV" muted loop controls playsinline></video>
+                    <div class="memory-caption">Така , про яку можна тільки мріяти!</div>
+                </div>
+                <div class="memory-item">
+                    <video src="3.MOV" muted loop controls playsinline></video>
+                    <div class="memory-caption">Найцінніші миті</div>
+                </div>
+            </div>
+            <button class="btn" onclick="nextSection('memories', 'final')">Далі →</button>
+        </section>
+
+        <section id="final">
+            <div style="font-size: 5rem; color: var(--primary-color); margin-bottom: 20px;">💖</div>
+            <h1>З Всесвітнім Днем Всіх Жінок!</h1>
+            <p>Ти — найкраще, що трапилося в моєму житті. Кожен день поруч із тобою — це справжнє щастя. Дякую за кожну мить, за кожну усмішку і за те, що ти просто є поруч. Я тебе дуже сильно кохаю! 💖</p>
+            <div class="text-art">(づ￣ ³￣)づ ♡</div>
+        </section>
+    </div>
+
+    <script>
+        // --- Навігація між екранами ---
+        function nextSection(currentId, nextId) {
+            document.getElementById(currentId).style.display = 'none';
+            document.getElementById(nextId).style.display = 'flex';
+            document.getElementById(nextId).style.flexDirection = 'column';
+            document.getElementById(nextId).style.alignItems = 'center';
+            document.getElementById(nextId).style.justifyContent = 'center';
+            window.scrollTo(0, 0);
+            if (nextId === 'game') {
+                createGameBoard(); // Запускаємо гру лише тоді, коли переходимо на її екран
+            }
+        }
+
+        // --- Екран причин ---
+        let revealedReasonsCount = 0;
+        const totalReasons = document.querySelectorAll('.reason-item').length;
+
+        function revealReason(element) {
+            if (!element.classList.contains('revealed')) {
+                element.classList.add('revealed');
+                revealedReasonsCount++;
+                if (revealedReasonsCount === totalReasons) {
+                    document.getElementById('reasons-next').style.display = 'inline-block';
+                }
+            }
+        }
+
+        // --- ОНОВЛЕНА ЛОГІКА ГРИ ---
+        const gameGrid = document.getElementById('game-grid');
+        const movesCounter = document.getElementById('moves-counter');
+        const gameNextBtn = document.getElementById('game-next');
+        const gameMessage = document.getElementById('game-message');
+        
+        // 12 карток (6 пар)
+        const cardsArray = [
+            '🎀', '🎀', '💖', '💖', '🧸', '🧸', 
+            '🌹', '🌹', '💌', '💌', '🏹', '🏹'
+        ];
+        
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let canFlip = true;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function createGameBoard() {
+            // Очищуємо поле та скидаємо змінні перед початком
+            gameGrid.innerHTML = '';
+            flippedCards = [];
+            matchedPairs = 0;
+            moves = 0;
+            canFlip = true;
+            movesCounter.innerText = 'Ходи: 0';
+            gameMessage.style.display = 'none';
+            gameNextBtn.style.display = 'none';
+
+            shuffle(cardsArray);
+
+            cardsArray.forEach(symbol => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.symbol = symbol;
+                
+                // Знак питання (задня сторона)
+                const back = document.createElement('div');
+                back.classList.add('card-back');
+                back.innerText = "?";
+                card.appendChild(back);
+
+                // Емодзі (передня сторона)
+                const front = document.createElement('div');
+                front.classList.add('card-front');
+                front.innerText = symbol;
+                card.appendChild(front);
+
+                card.addEventListener('click', flipCard);
+                gameGrid.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            // Якщо не можна перевертати, або картка вже перевернута/знайдена - ігноруємо клік
+            if (!canFlip || this.classList.contains('flipped') || this.classList.contains('matched')) return;
+
+            this.classList.add('flipped');
+            flippedCards.push(this);
+
+            if (flippedCards.length === 2) {
+                moves++;
+                movesCounter.innerText = `Ходи: ${moves}`;
+                canFlip = false; // Блокуємо кліки, поки йде перевірка
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+            
+            // Якщо символи співпадають
+            if (card1.dataset.symbol === card2.dataset.symbol) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                flippedCards = [];
+                matchedPairs++;
+                
+                // Якщо всі пари знайдено
+                if (matchedPairs === cardsArray.length / 2) {
+                    gameMessage.style.display = 'block';
+                    gameNextBtn.style.display = 'inline-block';
+                }
+                canFlip = true; // Дозволяємо перевертати далі
+            } else {
+                // Якщо не співпадають - чекаємо 1 секунду і ховаємо
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    flippedCards = [];
+                    canFlip = true; // Дозволяємо перевертати далі
+                }, 1000);
+            }
+        }
+
+        // --- Фонова анімація сердечок ---
+        const heartBg = document.getElementById('heart-bg');
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerText = '♥';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 5 + 5 + 's';
+            heart.style.fontSize = Math.random() * 15 + 10 + 'px';
+            heartBg.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, 10000);
+        }
+        setInterval(createHeart, 400);
+
+    </script>
+</body>
+</html>
